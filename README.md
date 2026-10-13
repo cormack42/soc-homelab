@@ -23,3 +23,4 @@ A home security operations lab build to practice detection engineering, alert tr
 |'writeups/'   | Investigation Write-ups |
 
 ##Status:
+Core detection pipeline working end-to-end. Two tested Sigma rules published; write ups in progress. 
