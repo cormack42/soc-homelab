@@ -7,11 +7,11 @@ flowchart TB
 
 %%----------Layer 1: The Network----------
 
-ISP[ISP MODEM] --> FLINT[GL-inet Flint 2<br/>Upstream Router · VLAN 10 gateway]
+ISP[ISP MODEM] --> FLINT[GL-iNet Flint 2<br/>Upstream Router · VLAN 10 gateway]
 
 %%Flint sends ONE cable (a trunk) to the TP-Link Switch.
 %%That cable carries VLANs 10-40, each tagged with its number.
-FLINT -->| trunk: VLANS 10-40| TPL[TP-Link TL-SG2008<br/>Managed Cored Switch]
+FLINT -->| trunk: VLANS 10-40| TPL[TP-Link TL-SG2008<br/>Managed Core Switch]
 
 %%Everything below hangs off the TP-Link.
 
@@ -90,7 +90,7 @@ WIN -. Sysmon Logs .-> ELK
 
 ## Network Segmentation
 
-V!-- Each VLAN is on its own network. OPNsense decides what can talk to what. -->
+<!-- Each VLAN is on its own network. OPNsense decides what can talk to what. -->
 
 | VLAN | Name | Subnet | What lives there | Gateway |
 |------|------|--------|------------------|---------|
@@ -98,14 +98,14 @@ V!-- Each VLAN is on its own network. OPNsense decides what can talk to what. --
 | 20 | Guest | 192.168.20.0/24 | Guest Wi-Fi | OPNsense |
 | 30 | Simulated Business | 192.168.30.0/24 | Windows Server Endpoint, file and media server | OPNsense |
 | 40 | Attack Lab | 192.168.40.0/24 | Kali, Metasploitable2, DVWA, Traffic Generator | Opnsense |
-| 50 | Management | 192.168.50.0/24 | Admin Laptop (Wired-only), Security Onion | OPNxsense |
+| 50 | Management | 192.168.50.0/24 | Admin Laptop (Wired-only), Security Onion | OPNsense |
 
 <!-- Rules that make the segmentation real, not just labels. -->
 
 **Isolation Rules**
-- Guest cannot reach internal VLAN.
+- Guest cannot reach any internal VLAN.
 - Management reaches the lab VLANs only through narrow SSH and web allow rules; everything else is blocked by default.
-- The attack lab is kept separate intentionally vulnerable machines never sit next to personal devices.
+- The attack lab is kept separate intentionally so vulnerable machines never sit next to personal devices.
 
 ## How monitoring works
 <!-- Two kinds of visibility: Network (what crosses the wire) and host (What happens inside the machine). --> 
@@ -117,8 +117,8 @@ V!-- Each VLAN is on its own network. OPNsense decides what can talk to what. --
 
 <!-- The loop every detection in this repo goes through. -->
 **Detection Workflow**
-1. Run an Atomic Red Team test mapped to MIRE ATT&CK Technique.
+1. Run an Atomic Red Team test mapped to MITRE ATT&CK Technique.
 2. Confirm the activity shows up in the logs.
-3. Write or adjust the rile, then confirm it alerts.
+3. Write or adjust the rule, then confirm it alerts.
 4. Run a test's cleanup and confirm it does **not** alert (This is how false positives get caught)
-5. Document the result in 'detections/' and 'writeups/'
+5. Document the result in `detections/` and `writeups/`
