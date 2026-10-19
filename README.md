@@ -13,6 +13,8 @@ A home security operations lab build to practice detection engineering, alert tr
 -**Adversary simulation:** Atomic Red Team, Kali, Metasploitable2, DVWA
 -**DNS Filtering:** Pi-hole
 
+Full diagram, VLAN layout, and monitoring design: [Lab Architecture](docs/architecture.md)
+
 ##Repo Layout
 |Folder | Contents|
 |-------|---------|
