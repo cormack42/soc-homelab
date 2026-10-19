@@ -36,7 +36,7 @@ TPL --> LAPTOP[Admin laptop<br/>VLAN 50 · Wired Only.]
 subgraph PVE[Proxmox VE Host]
 
   %%OPNsense is the firewall/router for vlans 20-50.
-  %%Its "WAN" side sits on VLAN 10 behind Flint 2 ROuter, not the real internet.
+  %%Its "WAN" side sits on VLAN 10 behind Flint 2 Router, not the real internet.
   OPN[OPNsense VM<br/>Firewall + Router for VLANs 20-50]
 
   %%VLAN 30 plays a small business: the Windows Server is the real monitored endpoint
@@ -78,7 +78,7 @@ end
 %%1. The TP-Link copies traffic from its ports to Security Onions Monitor port.
 TPL -. SPAN port mirror .-> SO
 
-%%2. VM-to-VM traffic inside Proxmox never touches the switch, so Open vSwitch
+%%2. Attack traffic between VMs stays inside Proxmox and never reaches the Physical Switch. Open vSwicth copies VLAN 40's traffic and sends it to security onion through a GRE Tunnel. 
 %%mirrors VLAN 40 and sends the copy to Security Onion through a GRE tunnel.
 V40 -. OVS Mirror over the GRE tunnel .-> SO
 
