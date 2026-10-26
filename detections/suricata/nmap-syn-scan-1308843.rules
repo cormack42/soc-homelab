@@ -1,0 +1,14 @@
+# Custom Nmap Scan Detected (sid 1308843)
+#
+# What:    Fires when one source sends 5+ TCP SYN packets to HOME_NET within
+#          10 seconds; alerts at most once per source per window (type both).
+# ATT&CK:  T1046 Network Service Discovery
+# Tested:  Nmap scans from Kali (VLAN 40) mirrored to Security Onion over a
+#          GRE tunnel; confirmed firing on repeated runs.
+# Tuning:  Noisy as written. Any burst of new connections (browser polling,
+#          lab traffic generators) meets 5 SYNs/10 s. Candidates: raise count,
+#          exclude known-good sources, add flow:stateless / classtype.
+# Deploy:  Security Onion -> Detections -> add as a Suricata (NIDS) rule, or
+#          append to local.rules on any Suricata sensor. Requires $HOME_NET.
+
+alert tcp any any -> $HOME_NET any (msg:"Custom Nmap Scan Detected"; flags:S; threshold: type both, track by_src, count 5, seconds 10; priority:2; sid:1308843; rev:1;)

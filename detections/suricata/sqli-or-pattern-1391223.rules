@@ -1,0 +1,13 @@
+# Possible SQL Injection Attempt - OR Pattern (sid 1391223)
+#
+# What:    Fires on an HTTP request whose URI contains '+OR+ (case-insensitive),
+#          the classic ' OR 1=1 tautology with spaces encoded as "+".
+# ATT&CK:  T1190 Exploit Public-Facing Application
+# Target:  Lab web app (DVWA) in the AttackLab VLAN.
+# Limits:  Narrow, signature-style match. Misses %20 or %27 encoding, comments
+#          (/**/), POST bodies, and other SQLi forms (UNION, stacked queries).
+#          Unencrypted HTTP only; Suricata cannot see inside HTTPS here.
+# Deploy:  Security Onion -> Detections -> add as a Suricata (NIDS) rule, or
+#          append to local.rules on any Suricata sensor. Requires $HOME_NET.
+
+alert http any any -> $HOME_NET any (msg:"Possible SQL Injection Attempt - OR Pattern"; flow:to_server,established; http.uri; content:"'+OR+"; nocase; classtype:web-application-attack; sid:1391223; rev:1;)

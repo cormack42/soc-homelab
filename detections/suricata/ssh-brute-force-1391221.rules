@@ -1,0 +1,14 @@
+# Possible SSH Brute Force Attempt - Multiple Connections (sid 1391221)
+#
+# What:    Fires when one source opens 5+ new TCP connections (SYN) to port 22
+#          on HOME_NET within 120 seconds. Alerts on every 5th SYN in the
+#          window (type threshold), so a sustained attack keeps alerting.
+# ATT&CK:  T1110.001 Brute Force: Password Guessing
+# Limits:  Counts connection attempts, not failed logins. Tools that reuse one
+#          connection for many password tries can stay under the threshold;
+#          legitimate admins opening several sessions can trip it. SSH on a
+#          non-standard port is not covered.
+# Deploy:  Security Onion -> Detections -> add as a Suricata (NIDS) rule, or
+#          append to local.rules on any Suricata sensor. Requires $HOME_NET.
+
+alert tcp any any -> $HOME_NET 22 (msg:"Possible SSH Brute Force Attempt - Multiple Connections"; flow:to_server; flags:S; threshold:type threshold, track by_src, count 5, seconds 120; classtype:attempted-recon; sid:1391221; rev:1;)
