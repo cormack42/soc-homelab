@@ -11,7 +11,7 @@ ISP[ISP MODEM] --> FLINT[GL-iNet Flint 2<br/>Upstream Router · VLAN 10 gateway]
 
 %%Flint sends ONE cable (a trunk) to the TP-Link Switch.
 %%That cable carries VLANs 10-40, each tagged with its number.
-FLINT -->| trunk: VLANS 10-40| TPL[TP-Link TL-SG2008<br/>Managed Core Switch]
+FLINT -->| trunk: VLANs 10-40| TPL[TP-Link TL-SG2008<br/>Managed Core Switch]
 
 %%Everything below hangs off the TP-Link.
 
@@ -29,7 +29,7 @@ TPL --> LAPTOP[Admin laptop<br/>VLAN 50 · Wired Only.]
 
 %%-----------------Layer 2: Proxmox Host--------------------------
 
-%%Ome physical server runs the firewall and every lab machine in VMs/containers.
+%%One physical server runs the firewall and every lab machine in VMs/containers.
 
 %%The TP-Link trunks VLANs 10-50 into a single cable.
 
@@ -46,7 +46,7 @@ subgraph PVE[Proxmox VE Host]
     FS[File Share + Media Server]
   end
 
-  %%VLAN 40 is the isolated attack range: an attacker bot, intentionally
+  %%VLAN 40 is the isolated attack range: an attacker box, intentionally
   %%Vulnerable targets, and a container that generates background traffic.
     subgraph V40[VLAN 40 · Attack lab]
       KALI[Kali Linux]
@@ -59,6 +59,9 @@ subgraph PVE[Proxmox VE Host]
 TPL -->| trunk: VLANs 10-50| PVE
 
 %%The attack lab also has its own uplink from the netgear on a separate adapter.
+
+TPL -->| trunk: VLAN 10 · OPNsense WAN| OPN
+
 NG -->|VLAN 40| V40
 
 %%---------------Layer 3: Security Onion----------------------
@@ -68,10 +71,10 @@ NG -->|VLAN 40| V40
 subgraph SO[Security Onion · bare metal · VLAN 50]
   SUR[Suricata IDS]
   ZEEL[Zeek]
-  ELK[Elasticsearch + Kibana<br/>Sigma Rules Via ElasticAlert]
+  ELK[Elasticsearch + Kibana<br/>Sigma Rules Via ElastAlert]
 end
 
-%%---------------------Layor 4: How Security Onion sees everything----------------------
+%%---------------------Layer 4: How Security Onion sees everything----------------------
 
 %%Dotted arrows = copies of traffic or logs, not normal network paths.
 
@@ -97,14 +100,14 @@ WIN -. Sysmon Logs .-> ELK
 | 10 | Personal | 192.168.10.0/24 | Home Devices, Pi-hole, switch and hypervisor management | Flint 2 |
 | 20 | Guest | 192.168.20.0/24 | Guest Wi-Fi | OPNsense |
 | 30 | Simulated Business | 192.168.30.0/24 | Windows Server Endpoint, file and media server | OPNsense |
-| 40 | Attack Lab | 192.168.40.0/24 | Kali, Metasploitable2, DVWA, Traffic Generator | Opnsense |
+| 40 | Attack Lab | 192.168.40.0/24 | Kali, Metasploitable2, DVWA, Traffic Generator | OPNsense |
 | 50 | Management | 192.168.50.0/24 | Admin Laptop (Wired-only), Security Onion | OPNsense |
 
 <!-- Rules that make the segmentation real, not just labels. -->
 
 **Isolation Rules**
 - Guest cannot reach any internal VLAN.
-- Management reaches the lab VLANs only through narrow SSH and web allow rules; everything else is blocked by default.
+- Management reaches the lab VLANs only through narrow SSH and web allow rules placed above explicit block rules.
 - The attack lab is kept separate intentionally so vulnerable machines never sit next to personal devices.
 
 ## How monitoring works
@@ -112,7 +115,7 @@ WIN -. Sysmon Logs .-> ELK
 | Source | What it captures | Analyzed by|
 |--------|------------------|------------|
 | Switch SPAN mirror | Traffic crossing the physical switch | Suricata (alerts), Zeek (connection, DNS, HTTP logs) |
-| Open vSwicth Mirror over GRE | VM-To-VM Traffic inside the attack lab, which never touches the physical switch | Suricata, Zeek |
+| Open vSwitch Mirror over GRE | VM-to-VM Traffic inside the attack lab, which never touches the physical switch | Suricata, Zeek |
 | Sysmon + Elastic Agent | Process creation, registry changes, account changes on the Windows endpoint | Custom Sigma rules via ElastAlert |
 
 <!-- The loop every detection in this repo goes through. -->
@@ -122,3 +125,18 @@ WIN -. Sysmon Logs .-> ELK
 3. Write or adjust the rule, then confirm it alerts.
 4. Run a test's cleanup and confirm it does **not** alert (This is how false positives get caught)
 5. Document the result in `detections/` and `writeups/`
+
+
+
+## Known Limitations
+
+<!-- Design level gaps. -->
+
+**Visibility Gaps**
+-VLAN 30 traffic between VMs stays inside Proxmox on a Linux bridge, which can't mirror. Only host logs (Sysmon) cover the Windows endpoint there.
+-Wi-Fi client-to-client traffic on the router never reaches the switch, so the sensor can't see it.
+
+**Reliability**
+- Everything virtual runs on one consumer desktop with no ECC RAM. An unexplained kernel lockup in August took the lab down until a manual reboot.
+- The sensor's monitor interface occasionally freezes while still reporting UP. A watchdog script detects and resets it automatically, but the root cause is unknown.
+
