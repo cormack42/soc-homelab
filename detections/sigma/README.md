@@ -5,7 +5,7 @@ Custom rules deployed in Security Onion, each tested with Atomic Red Team.
 | Rule | ATT&CK | TEST | STATUS |
 |------|--------|------|--------|
 | [Registry Run Key Persistence](registry-run-key-persistence.yml) | T1547.001 | ART T1547.001 #1 | Tuned 9/30/26 |
-|[Local User Created Via Net.exe](local-user-created-net-exe.yml) | T1136.001 | ART T1136.001 #4| Verified 9/30/26 |
+|[Local User Created Via Net.exe](local-user-created-via-net-exe.yml) | T1136.001 | ART T1136.001 #4| Verified 9/30/26 |
 
 
 **Tuning Notes**
