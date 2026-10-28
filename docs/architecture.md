@@ -58,9 +58,11 @@ subgraph PVE[Proxmox VE Host]
 
 TPL -->| trunk: VLANs 10-50| PVE
 
-%%The attack lab also has its own uplink from the netgear on a separate adapter.
+%%OPNsense's WAN gets its own adapter on a plain VLAN 10 untagged port. 
 
-TPL -->| trunk: VLAN 10 · OPNsense WAN| OPN
+TPL -->| VLAN 10 untagged · OPNsense WAN| OPN
+
+%%The attack lab also has its own uplink from the netgear on a separate adapter.
 
 NG -->|VLAN 40| V40
 
