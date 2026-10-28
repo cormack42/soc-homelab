@@ -1,0 +1,38 @@
+# Registry Run Key Persistence
+#
+# ATT&CK:  T1547.001 Boot or Logon Autostart Execution: Registry Run Keys
+# Tested:  Atomic Red Team T1547.001 test 1 on a Windows Server 2022 endpoint
+#          (Sysmon, Olaf Hartong config -> Elastic Agent -> Security Onion).
+#          Run alerts. Cleanup (deleting the Run value) does not alert.
+# Tuning:  The 9/27 version also fired on cleanup. Security Onion converts
+#          registry_set to event.type:"change", which matches Sysmon Event 12
+#          (key/value create and delete) as well as Event 13 (value set).
+#          Adding EventID: 13 limits it to value writes. Fixed 9/30.
+# Limits:  Covers CurrentVersion\Run and \RunOnce only (including WOW6432Node).
+#          Misses RunOnceEx, Policies\Explorer\Run, and other autostart
+#          locations. Software installers and updaters will trigger it.
+# Deploy:  Security Onion -> Detections -> add as a custom Sigma rule (ElastAlert).
+
+title: Registry Run Key Persistence
+id: 3b9d6f2e-8a41-4c7d-b5e0-1f6a2c9e7d38
+status: experimental
+description: Detects a value being set under a CurrentVersion Run or RunOnce key (logon autostart persistence).
+author: James
+date: 2026-09-27
+modified: 2026-09-30
+tags:
+    - attack.persistence
+    - attack.t1547.001
+logsource:
+    category: registry_set
+    product: windows
+detection:
+    selection:
+        EventID: 13
+        TargetObject|contains:
+            - '\CurrentVersion\Run\'
+            - '\CurrentVersion\RunOnce\'
+    condition: selection
+falsepositives:
+    - Legitimate software installers and updaters adding startup entries
+level: medium
