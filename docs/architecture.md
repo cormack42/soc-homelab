@@ -110,7 +110,7 @@ WIN -. Sysmon Logs .-> ELK
 **Isolation Rules**
 - Guest cannot reach any internal VLAN.
 - Management reaches the lab VLANs only through narrow SSH and web allow rules placed above explicit block rules.
-- The attack lab is kept separate intentionally so vulnerable machines never sit next to personal devices.
+- The attack lab is kept separate intentionally so vulnerable machines never sit next to personal devices. It can reach the internet but is blocked from Personal, Guest, Simulated Business, Management, and the firewall's own services; DNS to its gateway is the only exception. Verified from Kali, 10-26/2026.
 
 ## How monitoring works
 <!-- Two kinds of visibility: Network (what crosses the wire) and host (What happens inside the machine). --> 
@@ -135,8 +135,8 @@ WIN -. Sysmon Logs .-> ELK
 <!-- Design level gaps. -->
 
 **Visibility Gaps**
--VLAN 30 traffic between VMs stays inside Proxmox on a Linux bridge, which can't mirror. Only host logs (Sysmon) cover the Windows endpoint there.
--Wi-Fi client-to-client traffic on the router never reaches the switch, so the sensor can't see it.
+- VLAN 30 traffic between VMs stays inside Proxmox on a Linux bridge, which can't mirror. Only host logs (Sysmon) cover the Windows endpoint there.
+- Wi-Fi client-to-client traffic on the router never reaches the switch, so the sensor can't see it.
 
 **Reliability**
 - Everything virtual runs on one consumer desktop with no ECC RAM. An unexplained kernel lockup in August took the lab down until a manual reboot.
