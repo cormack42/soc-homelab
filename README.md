@@ -16,7 +16,7 @@ A home security operations lab built to practice detection engineering, alert tr
 Full diagram, VLAN layout, and monitoring design: [Lab Architecture](docs/architecture.md)
 
 ## Highlights
-- Built a GRE tunnel mirror so VM-to-VM traffic inside the hypervisor reaches the IDS, after finding that plain switch mirroring silently dropped it.
+- Built a GRE tunnel mirror so VM-to-VM traffic inside the hypervisor reaches the IDS, after finding that the switch mirror could never see it. 
 - Caught and fixed a false positive in my own Sigma rule by testing each Atomic Red Team cleanup step, not just the attack.
 - Wrote a watchdog script that detects and resets a network interface that freezes while still reporting UP.
 
