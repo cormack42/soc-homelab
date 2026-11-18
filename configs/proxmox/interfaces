@@ -1,0 +1,54 @@
+#  /etc/network/interfaces - Proxmox VE host (sanitized)
+# USB adapter names contain their MAC addresses, so they are replaced with placeholders:
+#   enxWAN0000000000  = USB adapter for OPNsense WAN (TP-Link VLAN 10 access port)
+#   enxVLAN4000000000 = TRENDnet USB adapter for the attack lab (Netgear VLAN 40 port)
+
+
+auto lo
+iface lo inet loopback
+
+auto nic0
+iface nic0 inet manual
+
+source /etc/network/interfaces.d/*
+
+iface enxWAN0000000000 inet manual
+
+iface wlp3s0 inet manual
+
+$ Main trunk: guests choose a VLAN with a tag.
+
+auto vmbr0
+iface vmbr0 inet manual
+  bridge-ports nic0
+  bridge-stp off
+  bridge-fd 0
+  bridge-vlan-aware yes
+  bridge-vids 10 20 30 40 50
+
+# Host management address on VLAN 10
+auto vmbr0.10
+iface vmbr0.10 inet static
+	address 192.168.10.50/24
+	gateway 192.168.10.1
+
+# OPNsense WAN only.
+auto vmbr1
+iface vmbr1 inet manual
+	bridge-ports enxWAN0000000000
+	bridge-stp off
+	bridge-fd 0
+
+# Attack lab (VLAN 40) on Open vSwitch so its traffic can be mirrored.
+auto vmbr40
+iface vmbr40 inet manual
+    ovs_type OVSBridge
+    ovs_ports enxVLAN4000000000 erspan1
+
+# GRE tunnel to the Security Onion sensor (named erspan1, but plain GRE).
+auto erspan1
+iface erspan1
+    ovs_type OVSTunnel
+    ovs_bridge vmbr40
+    ovs_tunnel_type gre
+    ovs_tunnel_options options:remote_ip=192.168.50.10 options:key=1
