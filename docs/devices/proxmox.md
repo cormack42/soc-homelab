@@ -35,7 +35,7 @@ Sanitized config: [configs/proxmox/interfaces](../../configs/proxmox/interfaces)
 | Job | Guests | Details |
 |-----|--------|---------|
 | Firewall / router | VM 100 opnsense | [OPNsense](opnsense.md) |
-| Simulated business (VLAN 30) | VM 205 win-detect-lab, CT 101 samba-share, CT 102 jellyfin | [Simulated Business](simulated-business.md |
+| Simulated business (VLAN 30) | VM 205 win-detect-lab, CT 101 samba-share, CT 102 jellyfin | [Simulated Business](simulated-business.md) |
 | Attack Lab (VLAN 40) | VM 201 kali-attacker, VM 202 metasploitable2, CT 203 dvwa, CT 204 noisegen | [Attack Lab](attack-lab.md) |
 
 VMs have their own kernel, so they're used for Windows, OPNsense (FreeBSD), and older targets like metasploitable2. LXC containers share the host's Linux kernel, which makes them lighter, so Linux services that don't need their own kernel run as containers.
